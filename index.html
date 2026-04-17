@@ -1,548 +1,474 @@
 <!DOCTYPE html>
 <!-- Created By Mahmoud El Sheikh -->
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Mahmoud El Sheikh</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --gold: #c9a84c;
-      --gold-light: #e8c97e;
-      --gold-pale: #f5e6c0;
-      --ink: #0a0a0f;
-      --ink-mid: #12121a;
-      --ink-soft: #1c1c28;
-      --platinum: #d4d4d8;
-      --white: #f8f5ee;
-      --ruby: #8b1a1a;
-      --teal-zamalek: #1a5276;
+      --acc:        #c9a84c;
+      --acc-light:  #e8c97e;
+      --acc-pale:   rgba(201,168,76,.10);
+      --acc-border: rgba(201,168,76,.25);
+      --bg-card:    rgba(10,10,18,.82);
+      --text:       #f5f0e8;
+      --text-dim:   rgba(245,240,232,.50);
+      --text-dimmer:rgba(245,240,232,.25);
+      --shadow:     rgba(0,0,0,.65);
     }
 
     html, body {
-      width: 100%; min-height: 100vh;
-      background: var(--ink);
+      min-height: 100vh; width: 100%;
       display: flex; align-items: center; justify-content: center;
+      background: #06060e;
       font-family: 'Raleway', sans-serif;
       overflow-x: hidden;
     }
 
-    /* ── starfield ── */
-    #canvas {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    /* ── CANVAS BACKGROUND ── */
+    #bgCanvas { position: fixed; inset: 0; z-index: 0; display: block; }
+
+    /* ── CARD ── */
+    .card {
+      position: relative; z-index: 10;
+      width: 360px;
+      background: var(--bg-card);
+      border: 1px solid var(--acc-border);
+      border-radius: 28px;
+      padding: 0 0 26px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset, 0 32px 80px var(--shadow);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      overflow: hidden;
+      animation: cardIn .85s cubic-bezier(.22,1,.36,1) both;
+      will-change: transform;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(36px) scale(.95); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
     }
 
-    /* ── gold glow radial ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,168,76,.07) 0%, transparent 70%);
-      pointer-events: none;
+    /* ── HEADER CANVAS ── */
+    .card-header { height: 100px; position: relative; overflow: hidden; }
+    #hdrCanvas { display: block; width: 100%; height: 100%; }
+    .header-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%);
+      transition: background 0.6s;
     }
-
-    /* ── scene & flip ── */
-    .scene {
-      width: 360px; min-height: 560px;
-      perspective: 1200px;
-      z-index: 10; position: relative;
-      animation: floatIn .9s cubic-bezier(.22,1,.36,1) both;
+    .header-label {
+      position: absolute; bottom: 13px; left: 20px;
+      font-family: 'Cinzel', serif; font-size: 8px;
+      letter-spacing: 3.5px; text-transform: uppercase;
+      color: var(--acc-light); opacity: .7;
     }
-
-    @keyframes floatIn {
-      from { opacity:0; transform: translateY(40px) scale(.95); }
-      to   { opacity:1; transform: translateY(0)   scale(1);    }
+    .share-btn {
+      position: absolute; top: 12px; right: 12px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(0,0,0,.35); border: 1px solid var(--acc-border);
+      color: var(--acc-light); font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 5; transition: all .3s;
     }
+    .share-btn:hover { background: var(--acc-pale); border-color: var(--acc); color: var(--acc); }
 
-    .card-wrapper {
-      width: 100%; height: 100%;
-      transform-style: preserve-3d;
-      transition: transform .85s cubic-bezier(.45,.05,.55,.95);
-      position: relative;
+    /* ── AVATAR ── */
+    .avatar-area {
+      display: flex; justify-content: center;
+      margin-top: -52px; position: relative; z-index: 2;
     }
-
-    .scene.flipped .card-wrapper { transform: rotateY(180deg); }
-
-    .face {
-      position: absolute; width: 100%;
-      backface-visibility: hidden; -webkit-backface-visibility: hidden;
-      border-radius: 24px;
+    .avatar-ring {
+      width: 104px; height: 104px; border-radius: 50%;
+      padding: 3px;
+      background: conic-gradient(from 0deg, var(--acc), var(--acc-light), var(--acc), var(--acc-light), var(--acc));
+      box-shadow: 0 0 30px rgba(201,168,76,.4), 0 8px 32px var(--shadow);
+      animation: ring-spin 9s linear infinite;
+      position: relative; transition: box-shadow .5s;
+    }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+    .avatar-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: #0a0a14;
+      display: flex; align-items: center; justify-content: center;
       overflow: hidden;
     }
-
-    /* ── FRONT ── */
-    .front {
-      background: linear-gradient(145deg, var(--ink-mid) 0%, var(--ink-soft) 100%);
-      border: 1px solid rgba(201,168,76,.25);
-      box-shadow: 0 0 60px rgba(201,168,76,.08), 0 30px 80px rgba(0,0,0,.6);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 0 0 36px;
-      cursor: pointer;
+    .avatar-inner img { width:100%; height:100%; object-fit:cover; }
+    .monogram {
+      font-family: 'Cinzel', serif; font-size: 36px; font-weight: 700;
+      background: linear-gradient(135deg, var(--acc), var(--acc-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; transition: background .5s;
     }
-
-    .front-banner {
-      width: 100%; height: 180px;
-      background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%);
-      position: relative; overflow: hidden;
-    }
-    .front-banner::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(201,168,76,.04) 0px, rgba(201,168,76,.04) 1px,
-        transparent 1px, transparent 20px
-      );
-    }
-    .front-banner .banner-text {
-      position: absolute; bottom: 16px; left: 24px;
-      font-family: 'Cinzel', serif;
-      font-size: 11px; letter-spacing: 4px;
-      color: rgba(201,168,76,.5);
-      text-transform: uppercase;
-    }
-    .zamalek-crest {
-      position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-      font-size: 42px; opacity: .18;
-    }
-
-    .front-avatar-wrap {
-      margin-top: -54px;
-      width: 108px; height: 108px;
-      border-radius: 50%;
-      border: 3px solid var(--gold);
-      box-shadow: 0 0 0 6px rgba(201,168,76,.1), 0 0 30px rgba(201,168,76,.2);
-      overflow: hidden; background: var(--ink-mid);
-      position: relative; z-index: 2;
-    }
-    .front-avatar-wrap img {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    .front-avatar-wrap .avatar-placeholder {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Cinzel', serif;
-      font-size: 36px; color: var(--gold);
-      background: linear-gradient(135deg, #1a1a28, #0d0d18);
-    }
-
-    .status-dot {
-      position: absolute; bottom: 6px; right: 6px;
+    .status {
+      position: absolute; bottom: 5px; right: 5px;
       width: 16px; height: 16px; border-radius: 50%;
-      background: #22c55e;
-      border: 2px solid var(--ink-mid);
-      box-shadow: 0 0 8px rgba(34,197,94,.5);
-      animation: pulse-green 2s ease infinite;
+      background: #22c55e; border: 2.5px solid #0a0a14;
+      box-shadow: 0 0 10px rgba(34,197,94,.6);
+      animation: pulse-s 2.4s ease infinite;
     }
-    @keyframes pulse-green {
-      0%,100% { box-shadow: 0 0 8px rgba(34,197,94,.5); }
-      50%      { box-shadow: 0 0 18px rgba(34,197,94,.8); }
-    }
-
-    .front-name {
-      font-family: 'Cinzel', serif;
-      font-size: 22px; font-weight: 600;
-      color: var(--white);
-      letter-spacing: 2px;
-      margin: 18px 0 4px;
-      text-align: center;
+    @keyframes pulse-s {
+      0%,100% { box-shadow: 0 0 8px rgba(34,197,94,.4); }
+      50%      { box-shadow: 0 0 20px rgba(34,197,94,.85); }
     }
 
-    .gold-rule {
-      width: 60px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 0 auto 14px;
+    /* ── NAME ── */
+    .card-name {
+      font-family: 'Cinzel', serif; font-size: 21px; font-weight: 600;
+      color: var(--text); text-align: center;
+      margin: 15px 0 4px; letter-spacing: 1.8px;
+    }
+    .card-sub {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 13.5px; color: var(--acc-light);
+      text-align: center; letter-spacing: .7px;
     }
 
-    .front-tags {
-      display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-      padding: 0 24px;
-    }
-    .tag {
-      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-      color: var(--gold-light);
-      border: 1px solid rgba(201,168,76,.3);
-      padding: 4px 12px; border-radius: 20px;
-      background: rgba(201,168,76,.05);
+    /* ── DIVIDER ── */
+    .rule {
+      margin: 16px 28px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--acc-border), transparent);
+      transition: background .5s;
     }
 
-    .flip-hint {
-      margin-top: 24px;
-      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-      color: rgba(201,168,76,.4);
-      display: flex; align-items: center; gap: 8px;
-      animation: hint-pulse 3s ease infinite;
+    /* ── BIO PILLS ── */
+    .bio-row {
+      display: flex; gap: 8px; padding: 0 20px;
+      justify-content: center; flex-wrap: wrap;
     }
-    .flip-hint::before, .flip-hint::after {
-      content: ''; flex: 1 1 30px; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,168,76,.3));
+    .bio-pill {
+      background: var(--acc-pale); border: 1px solid var(--acc-border);
+      border-radius: 30px; padding: 6px 15px;
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 86px; transition: background .5s, border-color .5s;
     }
-    .flip-hint::after { transform: scaleX(-1); }
-    @keyframes hint-pulse {
-      0%,100% { opacity:.4; } 50% { opacity:.85; }
+    .pill-lbl { font-size: 7px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dimmer); margin-bottom: 3px; }
+    .pill-val { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: var(--text); }
+
+    /* ── SEC LABEL ── */
+    .sec-lbl {
+      font-size: 7.5px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--text-dimmer); text-align: center; margin-bottom: 11px;
     }
 
-    /* ── BACK ── */
-    .back {
-      transform: rotateY(180deg);
-      background: linear-gradient(160deg, var(--ink-mid) 0%, var(--ink-soft) 100%);
-      border: 1px solid rgba(201,168,76,.2);
-      box-shadow: 0 0 60px rgba(201,168,76,.08), 0 30px 80px rgba(0,0,0,.6);
-      padding: 36px 28px 28px;
-      display: flex; flex-direction: column; align-items: center; gap: 0;
-      cursor: pointer;
-    }
-
-    .back-header {
-      text-align: center; margin-bottom: 20px;
-    }
-    .back-name {
-      font-family: 'Cinzel', serif;
-      font-size: 19px; font-weight: 600;
-      color: var(--white); letter-spacing: 2px;
-    }
-    .back-subtitle {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 14px;
-      color: var(--gold-light);
-      margin-top: 4px; letter-spacing: 1px;
-    }
-
-    .divider {
-      width: 100%; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,168,76,.3), transparent);
-      margin: 16px 0;
-    }
-
-    /* bio pills */
-    .bio-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;
-      margin-bottom: 4px;
-    }
-    .bio-item {
-      background: rgba(201,168,76,.06);
-      border: 1px solid rgba(201,168,76,.15);
-      border-radius: 12px;
-      padding: 10px 12px;
-      text-align: center;
-    }
-    .bio-item .bi-label {
-      font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
-      color: rgba(201,168,76,.5); margin-bottom: 4px;
-    }
-    .bio-item .bi-val {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 15px; font-weight: 600;
-      color: var(--white);
-    }
-    .bio-item.wide {
-      grid-column: 1 / -1;
-    }
-
-    /* social icons */
-    .socials-label {
-      font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
-      color: rgba(201,168,76,.4); margin-bottom: 12px;
-      text-align: center;
-    }
-    .socials {
-      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-      margin-bottom: 0;
-    }
-    .social-btn {
-      width: 42px; height: 42px; border-radius: 50%;
+    /* ── SOCIALS ── */
+    .socials-wrap { padding: 0 24px; }
+    .socials { display: flex; gap: 10px; justify-content: center; }
+    .soc {
+      width: 44px; height: 44px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       text-decoration: none;
-      border: 1px solid rgba(201,168,76,.2);
-      background: rgba(201,168,76,.05);
-      color: var(--gold-light);
-      font-size: 15px;
-      transition: all .3s ease;
-      position: relative; overflow: hidden;
+      border: 1px solid var(--acc-border);
+      background: var(--acc-pale); color: var(--acc-light); font-size: 15px;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
     }
-    .social-btn::before {
-      content: '';
-      position: absolute; inset: 0; border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,168,76,.25) 0%, transparent 70%);
-      opacity: 0; transition: opacity .3s;
-    }
-    .social-btn:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(201,168,76,.2); }
-    .social-btn:hover::before { opacity: 1; }
-    .social-btn.fb:hover  { border-color:#1877f2; color:#1877f2; }
-    .social-btn.tw:hover  { border-color:#1da1f2; color:#1da1f2; }
-    .social-btn.ig:hover  { border-color:#e1306c; color:#e1306c; }
-    .social-btn.wa:hover  { border-color:#25d366; color:#25d366; }
-    .social-btn.tg:hover  { border-color:#0088cc; color:#0088cc; }
+    .soc:hover { transform: translateY(-4px) scale(1.12); }
+    .soc.fb:hover  { border-color:#1877f2; color:#1877f2; box-shadow: 0 8px 20px rgba(24,119,242,.25); }
+    .soc.tw:hover  { border-color:#e2e8f0; color:#e2e8f0; box-shadow: 0 8px 20px rgba(226,232,240,.15); }
+    .soc.ig:hover  { border-color:#e1306c; color:#e1306c; box-shadow: 0 8px 20px rgba(225,48,108,.25); }
+    .soc.wa:hover  { border-color:#25d366; color:#25d366; box-shadow: 0 8px 20px rgba(37,211,102,.25); }
+    .soc.tg:hover  { border-color:#0088cc; color:#0088cc; box-shadow: 0 8px 20px rgba(0,136,204,.25); }
 
-    /* project links */
-    .projects-label {
-      font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
-      color: rgba(201,168,76,.4); margin-bottom: 12px;
-      text-align: center;
-    }
-    .project-links {
-      display: flex; flex-direction: column; gap: 8px; width: 100%;
-    }
-    .proj-link {
+    /* ── PROJECTS ── */
+    .projects-wrap { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
+    .proj {
       display: flex; align-items: center; gap: 12px;
       text-decoration: none;
-      border: 1px solid rgba(201,168,76,.15);
-      border-radius: 10px;
-      padding: 10px 14px;
-      background: rgba(201,168,76,.04);
-      transition: all .3s ease;
-      color: var(--white);
+      border: 1px solid var(--acc-border); border-radius: 14px;
+      padding: 11px 14px; background: var(--acc-pale);
+      transition: all .3s ease; color: var(--text);
     }
-    .proj-link:hover {
-      border-color: rgba(201,168,76,.5);
-      background: rgba(201,168,76,.1);
-      transform: translateX(4px);
-    }
-    .proj-link .proj-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: rgba(201,168,76,.1);
-      border: 1px solid rgba(201,168,76,.2);
+    .proj:hover { border-color: var(--acc); background: rgba(201,168,76,.16); transform: translateX(5px); }
+    .proj-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      border: 1px solid var(--acc-border); background: rgba(0,0,0,.25);
       display: flex; align-items: center; justify-content: center;
-      color: var(--gold);
-      font-size: 13px; flex-shrink: 0;
+      color: var(--acc); font-size: 14px; flex-shrink: 0;
     }
-    .proj-link .proj-info { flex: 1; }
-    .proj-link .proj-title {
-      font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px;
-      color: var(--gold-light);
-    }
-    .proj-link .proj-desc {
-      font-size: 10px; color: rgba(201,168,76,.45); margin-top: 2px;
-    }
-    .proj-link .proj-arrow {
-      color: rgba(201,168,76,.3); font-size: 11px;
-      transition: transform .3s;
-    }
-    .proj-link:hover .proj-arrow { transform: translateX(4px); color: var(--gold); }
+    .proj-info { flex: 1; }
+    .proj-title { font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 1px; color: var(--acc-light); }
+    .proj-desc  { font-size: 9.5px; color: var(--text-dimmer); margin-top: 2px; }
+    .proj-arr   { color: var(--text-dimmer); font-size: 11px; transition: all .3s; }
+    .proj:hover .proj-arr { color: var(--acc); transform: translateX(4px); }
 
-    .back-footer {
-      margin-top: 20px; text-align: center;
-      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(201,168,76,.3);
+    /* ── THEME SWITCHER ── */
+    .themes-wrap { padding: 0 24px; }
+    .themes { display: flex; gap: 10px; justify-content: center; align-items: center; }
+    .t-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      cursor: pointer; border: 2.5px solid transparent;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
     }
-    .back-footer span { color: rgba(201,168,76,.5); }
+    .t-dot:hover { transform: scale(1.25); }
+    .t-dot.on { border-color: rgba(255,255,255,.75); transform: scale(1.2); box-shadow: 0 0 14px currentColor; }
+    .t-dot[data-t="gold"]     { background: linear-gradient(135deg,#c9a84c,#f0d888); }
+    .t-dot[data-t="zamalek"]  { background: linear-gradient(135deg,#1a4fa0,#5baee8); }
+    .t-dot[data-t="crimson"]  { background: linear-gradient(135deg,#8b1a1a,#d44); }
+    .t-dot[data-t="emerald"]  { background: linear-gradient(135deg,#145a32,#2ecc71); }
+    .t-dot[data-t="amethyst"] { background: linear-gradient(135deg,#4a1a6b,#a855f7); }
+    .t-dot[data-t="midnight"] { background: linear-gradient(135deg,#1e293b,#64748b); }
 
-    /* share btn */
-    .share-btn {
-      position: absolute; top: 16px; right: 16px;
-      width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(201,168,76,.07);
-      border: 1px solid rgba(201,168,76,.2);
-      color: rgba(201,168,76,.5);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 13px;
-      transition: all .3s; z-index: 5;
+    /* ── FOOTER ── */
+    .card-footer {
+      text-align: center; font-size: 8.5px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-dimmer);
     }
-    .share-btn:hover { background: rgba(201,168,76,.15); border-color: var(--gold); color: var(--gold); }
+    .card-footer span { color: var(--acc); }
 
-    /* toast */
+    /* ── TOAST ── */
     .toast {
-      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.3);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      color: var(--gold-light); font-size: 12px; letter-spacing: 2px;
-      text-transform: uppercase; padding: 12px 24px; border-radius: 30px;
-      opacity: 0; transition: all .4s; z-index: 100; white-space: nowrap;
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: rgba(0,0,0,.7); border: 1px solid var(--acc-border);
+      backdrop-filter: blur(20px); color: var(--acc-light);
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 10px 22px; border-radius: 30px;
+      opacity: 0; transition: all .4s; z-index: 200; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* responsive */
-    @media (max-width: 420px) {
-      .scene { width: calc(100vw - 40px); }
-    }
+    @media (max-width: 400px) { .card { width: calc(100vw - 32px); } }
   </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
 
-<div class="scene" id="scene">
-  <div class="card-wrapper" id="cardWrapper">
+<canvas id="bgCanvas"></canvas>
 
-    <!-- FRONT FACE -->
-    <div class="face front" onclick="flip()">
-      <div class="front-banner">
-        <div class="banner-text">Est. 1911 · Zamalek SC</div>
-        <div class="zamalek-crest">🇦🇹</div>
-      </div>
+<div class="card" id="card">
 
-      <div class="front-avatar-wrap">
-        <!-- Shows initials if image not found -->
-        <div class="avatar-placeholder" id="avatarFront">M</div>
-        <div class="status-dot" title="Online"></div>
-      </div>
-
-      <div class="front-name">Mahmoud El Sheikh</div>
-      <div class="gold-rule"></div>
-
-      <div class="front-tags">
-        <span class="tag">❤ Zamalek</span>
-        <span class="tag">✨ ZSC</span>
-        <span class="tag">1911</span>
-      </div>
-
-      <div class="flip-hint">View Profile</div>
-    </div>
-
-    <!-- BACK FACE -->
-    <div class="face back" onclick="flip()">
-
-      <button class="share-btn" onclick="shareCard(event)" title="Share">
-        <i class="fas fa-share-nodes"></i>
-      </button>
-
-      <div class="back-header">
-        <div class="back-name">Mahmoud El Sheikh</div>
-        <div class="back-subtitle">Passionate Zamalkawy · Since 1911</div>
-      </div>
-
-      <div class="gold-rule"></div>
-
-      <div class="bio-grid">
-        <div class="bio-item">
-          <div class="bi-label">Club</div>
-          <div class="bi-val">🇦🇹 Zamalek</div>
-        </div>
-        <div class="bio-item">
-          <div class="bi-label">Founded</div>
-          <div class="bi-val">1911</div>
-        </div>
-        <div class="bio-item wide">
-          <div class="bi-label">Identity</div>
-          <div class="bi-val">✨ ZSC · White Knights ✨</div>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="socials-label">Connect</div>
-      <div class="socials">
-        <a class="social-btn fb" href="https://www.facebook.com/profile.php?id=100063828772165" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a class="social-btn tw" href="https://x.com/Mahmoud13965642?t=N08ovBaf-OpU5B1-ifXbpg&s=09" target="_blank" title="Twitter / X"><i class="fab fa-x-twitter"></i></a>
-        <a class="social-btn ig" href="https://instagram.com/mhmoud_el_sheikh?igshid=dHg4Z3BiOTB3eWxj" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-        <a class="social-btn wa" href="https://wa.me/+201000808325" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <a class="social-btn tg" href="https://t.me/mahmoud_elsheikh_Zsc" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
-      </div>
-
-      <div class="divider"></div>
-      <div class="projects-label">My Projects</div>
-      <div class="project-links">
-        <a class="proj-link" href="https://mahmoudelsheikh7.github.io/web2/" target="_blank">
-          <div class="proj-icon"><i class="fas fa-globe"></i></div>
-          <div class="proj-info">
-            <div class="proj-title">Personal Website</div>
-            <div class="proj-desc">mahmoudelsheikh7.github.io</div>
-          </div>
-          <div class="proj-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-        <a class="proj-link" href="https://mahmoudelsheikh7.github.io/M4S/" target="_blank">
-          <div class="proj-icon"><i class="fas fa-star"></i></div>
-          <div class="proj-info">
-            <div class="proj-title">M4S Project</div>
-            <div class="proj-desc">mahmoudelsheikh7.github.io/M4S</div>
-          </div>
-          <div class="proj-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-      </div>
-
-      <div class="back-footer">
-        Copyright © 2025 <span>Mahmoudelsheikh®</span>
-      </div>
-    </div>
-
+  <!-- HEADER -->
+  <div class="card-header">
+    <canvas id="hdrCanvas"></canvas>
+    <div class="header-overlay" id="hdrOverlay"></div>
+    <div class="header-label">Est. 1911 &nbsp;·&nbsp; Zamalek SC</div>
+    <button class="share-btn" onclick="shareCard()"><i class="fas fa-share-nodes"></i></button>
   </div>
+
+  <!-- AVATAR -->
+  <div class="avatar-area">
+    <div class="avatar-ring" id="ring">
+      <div class="avatar-inner">
+        <div class="monogram" id="mono">M</div>
+      </div>
+    </div>
+    <div class="status" title="Online"></div>
+  </div>
+
+  <!-- NAME -->
+  <div class="card-name">Mahmoud El Sheikh</div>
+  <div class="card-sub">Passionate Zamalkawy &nbsp;·&nbsp; Since 1911</div>
+
+  <div class="rule"></div>
+
+  <!-- BIO -->
+  <div class="bio-row">
+    <div class="bio-pill"><span class="pill-lbl">Club</span><span class="pill-val">🇦🇹 Zamalek</span></div>
+    <div class="bio-pill"><span class="pill-lbl">Founded</span><span class="pill-val">1911</span></div>
+    <div class="bio-pill"><span class="pill-lbl">Heart</span><span class="pill-val">✨ ZSC</span></div>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- SOCIALS -->
+  <div class="socials-wrap">
+    <div class="sec-lbl">Connect</div>
+    <div class="socials">
+      <a class="soc fb" href="https://www.facebook.com/profile.php?id=100063828772165" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a class="soc tw" href="https://x.com/Mahmoud13965642?t=N08ovBaf-OpU5B1-ifXbpg&s=09" target="_blank" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a class="soc ig" href="https://instagram.com/mhmoud_el_sheikh?igshid=dHg4Z3BiOTB3eWxj" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+      <a class="soc wa" href="https://wa.me/+201000808325" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      <a class="soc tg" href="https://t.me/mahmoud_elsheikh_Zsc" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- PROJECTS -->
+  <div class="projects-wrap">
+    <div class="sec-lbl">Projects</div>
+    <a class="proj" href="https://mahmoudelsheikh7.github.io/web2/" target="_blank">
+      <div class="proj-icon"><i class="fas fa-globe"></i></div>
+      <div class="proj-info">
+        <div class="proj-title">Personal Website</div>
+        <div class="proj-desc">mahmoudelsheikh7.github.io/web2</div>
+      </div>
+      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
+    </a>
+    <a class="proj" href="https://mahmoudelsheikh7.github.io/M4S/" target="_blank">
+      <div class="proj-icon"><i class="fas fa-star"></i></div>
+      <div class="proj-info">
+        <div class="proj-title">M4S Project</div>
+        <div class="proj-desc">mahmoudelsheikh7.github.io/M4S</div>
+      </div>
+      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
+    </a>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- THEME SWITCHER -->
+  <div class="themes-wrap">
+    <div class="sec-lbl">Theme</div>
+    <div class="themes">
+      <div class="t-dot on" data-t="gold"     title="Gold Luxury"  onclick="setTheme('gold')"></div>
+      <div class="t-dot"    data-t="zamalek"  title="Zamalek Blue" onclick="setTheme('zamalek')"></div>
+      <div class="t-dot"    data-t="crimson"  title="Crimson"      onclick="setTheme('crimson')"></div>
+      <div class="t-dot"    data-t="emerald"  title="Emerald"      onclick="setTheme('emerald')"></div>
+      <div class="t-dot"    data-t="amethyst" title="Amethyst"     onclick="setTheme('amethyst')"></div>
+      <div class="t-dot"    data-t="midnight" title="Midnight"     onclick="setTheme('midnight')"></div>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="card-footer">Copyright &copy; 2025 <span>Mahmoudelsheikh&reg;</span></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  /* ── starfield canvas ── */
-  (function(){
-    const c = document.getElementById('canvas');
-    const ctx = c.getContext('2d');
-    let W, H, stars = [];
-    const N = 130;
+/* ─── THEME DATA ─── */
+const T = {
+  gold:     { acc:'#c9a84c', aL:'#e8c97e', aP:'rgba(201,168,76,.10)', aB:'rgba(201,168,76,.25)',  bg:'rgba(10,10,18,.82)',  orbs:['#1a1100','#3a2800','#583a00','#0c0c1a','#111130'], ring:'conic-gradient(from 0deg,#c9a84c,#f0d888,#c9a84c,#f0d888,#c9a84c)', rShadow:'rgba(201,168,76,.4)' },
+  zamalek:  { acc:'#4d9de0', aL:'#85bde8', aP:'rgba(77,157,224,.10)', aB:'rgba(77,157,224,.27)',  bg:'rgba(5,12,28,.84)',   orbs:['#001525','#002a50','#004080','#000e1c','#011e3a'], ring:'conic-gradient(from 0deg,#1a4fa0,#5baee8,#1a4fa0,#5baee8,#1a4fa0)', rShadow:'rgba(77,157,224,.4)' },
+  crimson:  { acc:'#e05555', aL:'#f08888', aP:'rgba(224,85,85,.10)',   aB:'rgba(224,85,85,.27)',   bg:'rgba(14,5,5,.84)',    orbs:['#1e0000','#4a0000','#780010','#0e0000','#300005'], ring:'conic-gradient(from 0deg,#8b1a1a,#d44,#8b1a1a,#d44,#8b1a1a)',         rShadow:'rgba(224,85,85,.4)' },
+  emerald:  { acc:'#2ecc71', aL:'#5dda95', aP:'rgba(46,204,113,.10)',  aB:'rgba(46,204,113,.25)',  bg:'rgba(4,14,8,.84)',    orbs:['#001808','#002e10','#005028','#000e04','#001c0a'], ring:'conic-gradient(from 0deg,#145a32,#2ecc71,#145a32,#2ecc71,#145a32)',   rShadow:'rgba(46,204,113,.4)' },
+  amethyst: { acc:'#a855f7', aL:'#c084fc', aP:'rgba(168,85,247,.10)',  aB:'rgba(168,85,247,.27)',  bg:'rgba(10,5,20,.84)',   orbs:['#0d0020','#1e0040','#3c0080','#080015','#180035'], ring:'conic-gradient(from 0deg,#4a1a6b,#a855f7,#4a1a6b,#a855f7,#4a1a6b)',   rShadow:'rgba(168,85,247,.4)' },
+  midnight: { acc:'#94a3b8', aL:'#cbd5e1', aP:'rgba(148,163,184,.09)', aB:'rgba(148,163,184,.20)', bg:'rgba(6,8,14,.86)',    orbs:['#060810','#0c1020','#141826','#030408','#09090e'], ring:'conic-gradient(from 0deg,#1e293b,#64748b,#1e293b,#64748b,#1e293b)',   rShadow:'rgba(148,163,184,.3)' },
+};
 
-    function resize(){ W = c.width = innerWidth; H = c.height = innerHeight; }
-    window.addEventListener('resize', resize); resize();
+let current = 'gold';
 
-    for(let i=0;i<N;i++) stars.push({
-      x: Math.random(), y: Math.random(),
-      r: Math.random()*.9+.1,
-      o: Math.random()*.6+.1,
-      s: Math.random()*.0003+.0001
-    });
+function setTheme(name) {
+  const t = T[name]; if (!t) return;
+  current = name;
+  const r = document.documentElement;
+  r.style.setProperty('--acc',        t.acc);
+  r.style.setProperty('--acc-light',  t.aL);
+  r.style.setProperty('--acc-pale',   t.aP);
+  r.style.setProperty('--acc-border', t.aB);
+  r.style.setProperty('--bg-card',    t.bg);
 
-    (function tick(){
-      ctx.clearRect(0,0,W,H);
-      stars.forEach(s=>{
-        s.y += s.s; if(s.y>1) s.y=0;
-        const alpha = s.o + Math.sin(Date.now()*.001+s.x*10)*.15;
-        ctx.beginPath();
-        ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(201,168,76,${Math.max(0,alpha)})`;
-        ctx.fill();
-      });
-      requestAnimationFrame(tick);
-    })();
-  })();
+  const ring = document.getElementById('ring');
+  ring.style.background  = t.ring;
+  ring.style.boxShadow   = `0 0 30px ${t.rShadow}, 0 8px 32px rgba(0,0,0,.55)`;
 
-  /* ── flip ── */
-  function flip(){
-    document.getElementById('scene').classList.toggle('flipped');
-  }
+  document.querySelectorAll('.t-dot').forEach(d => d.classList.toggle('on', d.dataset.t === name));
 
-  /* ── share / copy ── */
-  function shareCard(e){
-    e.stopPropagation();
-    const url = window.location.href;
-    if(navigator.share){
-      navigator.share({ title:'Mahmoud El Sheikh', url });
-    } else {
-      navigator.clipboard.writeText(url).then(()=> showToast('Link copied to clipboard'));
-    }
-  }
+  // update header overlay gradient
+  document.getElementById('hdrOverlay').style.background =
+    `linear-gradient(to bottom, transparent 35%, ${t.bg} 100%)`;
+}
 
-  function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(()=> t.classList.remove('show'), 2600);
-  }
+/* ─── FULL-PAGE ANIMATED BG (orbs) ─── */
+const bgC   = document.getElementById('bgCanvas');
+const bgX   = bgC.getContext('2d');
+function resizeBg() { bgC.width = innerWidth; bgC.height = innerHeight; }
+window.addEventListener('resize', resizeBg); resizeBg();
 
-  /* ── 3D mouse tilt ── */
-  const scene = document.getElementById('scene');
-  const wrap  = document.getElementById('cardWrapper');
-  let ticking = false;
+const blobs = Array.from({length: 7}, (_, i) => ({
+  x: Math.random(), y: Math.random(),
+  vx: (Math.random()-.5)*.00115, vy: (Math.random()-.5)*.00115,
+  r: .25 + Math.random()*.2, ci: i,
+}));
 
-  scene.addEventListener('mousemove', e=>{
-    if(ticking) return; ticking=true;
-    requestAnimationFrame(()=>{
-      const rect = scene.getBoundingClientRect();
-      const cx = rect.left + rect.width/2;
-      const cy = rect.top  + rect.height/2;
-      const dx = (e.clientX - cx) / (rect.width/2);
-      const dy = (e.clientY - cy) / (rect.height/2);
-      const isFlipped = scene.classList.contains('flipped');
-      const rx = -dy * 8;
-      const ry = isFlipped ? 180 + dx*8 : dx*8;
-      wrap.style.transition = 'transform .1s linear';
-      wrap.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-      ticking=false;
-    });
+function drawBg() {
+  const W = bgC.width, H = bgC.height;
+  bgX.clearRect(0,0,W,H);
+  bgX.fillStyle = '#06060e';
+  bgX.fillRect(0,0,W,H);
+  const palette = T[current].orbs;
+  blobs.forEach(b => {
+    b.x += b.vx; b.y += b.vy;
+    if(b.x<-.2||b.x>1.2) b.vx*=-1;
+    if(b.y<-.2||b.y>1.2) b.vy*=-1;
+    const gx = b.x*W, gy = b.y*H, gr = b.r*Math.min(W,H);
+    const g = bgX.createRadialGradient(gx,gy,0, gx,gy,gr);
+    const col = palette[b.ci % palette.length];
+    g.addColorStop(0,   col+'cc');
+    g.addColorStop(.55, col+'44');
+    g.addColorStop(1,   col+'00');
+    bgX.beginPath(); bgX.arc(gx,gy,gr,0,Math.PI*2);
+    bgX.fillStyle = g; bgX.fill();
   });
+  requestAnimationFrame(drawBg);
+}
+drawBg();
 
-  scene.addEventListener('mouseleave', ()=>{
-    const isFlipped = scene.classList.contains('flipped');
-    wrap.style.transition = 'transform .85s cubic-bezier(.45,.05,.55,.95)';
-    wrap.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+/* ─── HEADER CANVAS (particles) ─── */
+const hC  = document.getElementById('hdrCanvas');
+const hX  = hC.getContext('2d');
+const hPts = Array.from({length:50}, () => ({
+  x: Math.random(), y: Math.random(),
+  vx:(Math.random()-.5)*.0014, vy:(Math.random()-.5)*.0014,
+  r: Math.random()*.7+.2, o: Math.random()*.45+.18,
+}));
+
+function resizeHdr() { hC.width = hC.offsetWidth; hC.height = hC.offsetHeight; }
+window.addEventListener('resize', ()=> setTimeout(resizeHdr,50)); setTimeout(resizeHdr,50);
+
+function drawHdr() {
+  const W = hC.width, H = hC.height;
+  if(!W||!H){ requestAnimationFrame(drawHdr); return; }
+  hX.clearRect(0,0,W,H);
+  const t = T[current];
+
+  // gradient bg for header
+  const bg = hX.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0, t.orbs[2]+'ff');
+  bg.addColorStop(1, t.orbs[0]+'ff');
+  hX.fillStyle = bg; hX.fillRect(0,0,W,H);
+
+  // grid lines
+  hX.strokeStyle = t.acc+'1a'; hX.lineWidth = .5;
+  for(let x=0;x<W;x+=22){ hX.beginPath(); hX.moveTo(x,0); hX.lineTo(x,H); hX.stroke(); }
+  for(let y=0;y<H;y+=22){ hX.beginPath(); hX.moveTo(0,y); hX.lineTo(W,y); hX.stroke(); }
+
+  // floating dots
+  hPts.forEach(p => {
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>1) p.vx*=-1;
+    if(p.y<0||p.y>1) p.vy*=-1;
+    const a = p.o + Math.sin(Date.now()*.0018+p.x*9)*.12;
+    hX.beginPath(); hX.arc(p.x*W, p.y*H, p.r, 0, Math.PI*2);
+    hX.fillStyle = t.acc + Math.round(Math.max(0,a)*255).toString(16).padStart(2,'0');
+    hX.fill();
   });
+  requestAnimationFrame(drawHdr);
+}
+drawHdr();
+
+/* ─── SHARE ─── */
+function shareCard() {
+  const url = window.location.href;
+  if (navigator.share) { navigator.share({ title:'Mahmoud El Sheikh', url }); }
+  else { navigator.clipboard.writeText(url).then(()=> toast('Link copied ✓')); }
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=> el.classList.remove('show'), 2400);
+}
+
+/* ─── 3D TILT ─── */
+const card = document.getElementById('card');
+card.addEventListener('mousemove', e => {
+  const rc = card.getBoundingClientRect();
+  const dx = (e.clientX - rc.left  - rc.width /2) / (rc.width /2);
+  const dy = (e.clientY - rc.top   - rc.height/2) / (rc.height/2);
+  card.style.transform = `perspective(900px) rotateX(${-dy*5}deg) rotateY(${dx*5}deg) scale(1.012)`;
+  card.style.transition = 'transform .08s linear, border-color .5s, box-shadow .5s';
+});
+card.addEventListener('mouseleave', () => {
+  card.style.transition = 'transform .5s ease, border-color .5s, box-shadow .5s';
+  card.style.transform  = 'perspective(900px) rotateX(0) rotateY(0) scale(1)';
+});
 </script>
 </body>
 </html>
