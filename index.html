@@ -12,487 +12,242 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --acc:        #c9a84c;
-      --acc-light:  #e8c97e;
-      --acc-pale:   rgba(201,168,76,.10);
-      --acc-border: rgba(201,168,76,.25);
-      --bg-card:    rgba(10,10,18,.82);
-      --text:       #f5f0e8;
-      --text-dim:   rgba(245,240,232,.50);
-      --text-dimmer:rgba(245,240,232,.25);
-      --shadow:     rgba(0,0,0,.65);
+      --desk:       #a9835f;
+      --paper:      #f2e4d0;
+      --paper-edge: #e2cfae;
+      --ink:        #4a3626;
+      --ink-soft:   rgba(74,54,38,.62);
+      --ink-faint:  rgba(74,54,38,.32);
+      --rule:       rgba(74,54,38,.22);
+      --accent:     #8a6238;
     }
 
     html, body {
       min-height: 100vh; width: 100%;
-      display: flex; align-items: center; justify-content: center;
-      background: #06060e;
+      background: var(--desk);
       font-family: 'Raleway', sans-serif;
-      overflow-x: hidden;
+      color: var(--ink);
     }
 
-    /* ── CANVAS BACKGROUND ── */
-    #bgCanvas { position: fixed; inset: 0; z-index: 0; display: block; }
-
-    /* ── CARD ── */
-    .card {
-      position: relative; z-index: 10;
-      width: 360px;
-      background: var(--bg-card);
-      border: 1px solid var(--acc-border);
-      border-radius: 28px;
-      padding: 0 0 26px;
-      box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset, 0 32px 80px var(--shadow);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      overflow: hidden;
-      animation: cardIn .85s cubic-bezier(.22,1,.36,1) both;
-      will-change: transform;
-    }
-    @keyframes cardIn {
-      from { opacity:0; transform:translateY(36px) scale(.95); }
-      to   { opacity:1; transform:translateY(0) scale(1); }
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 56px 20px;
     }
 
-    /* ── HEADER CANVAS ── */
-    .card-header { height: 100px; position: relative; overflow: hidden; }
-    #hdrCanvas { display: block; width: 100%; height: 100%; }
-    .header-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%);
-      transition: background 0.6s;
+    /* ── PAGE ── */
+    .page {
+      width: 100%;
+      max-width: 480px;
+      background: var(--paper);
+      border: 1px solid var(--paper-edge);
+      box-shadow: 0 1px 2px rgba(74,54,38,.15), 0 24px 48px rgba(43,30,18,.25);
+      padding: 40px 36px 30px;
     }
-    .header-label {
-      position: absolute; bottom: 13px; left: 20px;
-      font-family: 'Cinzel', serif; font-size: 8px;
-      letter-spacing: 3.5px; text-transform: uppercase;
-      color: var(--acc-light); opacity: .7;
+
+    /* ── HEADER ── */
+    .doc-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .avatar {
+      flex-shrink: 0;
+      width: 66px; height: 66px; border-radius: 50%;
+      border: 1px solid var(--ink-faint);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--paper-edge);
+    }
+    .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .monogram {
+      font-family: 'Cinzel', serif; font-size: 22px; font-weight: 600;
+      color: var(--accent);
+    }
+    .head-text { flex: 1; }
+    .name {
+      font-family: 'Cinzel', serif; font-weight: 600;
+      font-size: 21px; letter-spacing: .5px;
+      color: var(--ink);
+    }
+    .role {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 14.5px; color: var(--ink-soft);
+      margin-top: 3px;
     }
     .share-btn {
-      position: absolute; top: 12px; right: 12px;
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(0,0,0,.35); border: 1px solid var(--acc-border);
-      color: var(--acc-light); font-size: 12px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: transparent; border: 1px solid var(--ink-faint);
+      color: var(--ink-soft); font-size: 11px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 5; transition: all .3s;
+      cursor: pointer; transition: border-color .25s, color .25s;
+      align-self: flex-start;
     }
-    .share-btn:hover { background: var(--acc-pale); border-color: var(--acc); color: var(--acc); }
+    .share-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* ── AVATAR ── */
-    .avatar-area {
-      display: flex; justify-content: center;
-      margin-top: -52px; position: relative; z-index: 2;
-    }
-    .avatar-ring {
-      width: 104px; height: 104px; border-radius: 50%;
-      padding: 3px;
-      background: conic-gradient(from 0deg, var(--acc), var(--acc-light), var(--acc), var(--acc-light), var(--acc));
-      box-shadow: 0 0 30px rgba(201,168,76,.4), 0 8px 32px var(--shadow);
-      animation: ring-spin 9s linear infinite;
-      position: relative; transition: box-shadow .5s;
-    }
-    @keyframes ring-spin { to { transform: rotate(360deg); } }
-    .avatar-inner {
-      width: 100%; height: 100%; border-radius: 50%;
-      background: #0a0a14;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    .avatar-inner img { width:100%; height:100%; object-fit:cover; }
-    .monogram {
-      font-family: 'Cinzel', serif; font-size: 36px; font-weight: 700;
-      background: linear-gradient(135deg, var(--acc), var(--acc-light));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; transition: background .5s;
-    }
-    .status {
-      position: absolute; bottom: 5px; right: 5px;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: #22c55e; border: 2.5px solid #0a0a14;
-      box-shadow: 0 0 10px rgba(34,197,94,.6);
-      animation: pulse-s 2.4s ease infinite;
-    }
-    @keyframes pulse-s {
-      0%,100% { box-shadow: 0 0 8px rgba(34,197,94,.4); }
-      50%      { box-shadow: 0 0 20px rgba(34,197,94,.85); }
+    /* ── RULE ── */
+    .rule { border: none; height: 1px; background: var(--rule); margin: 24px 0; }
+
+    /* ── SECTION HEADING ── */
+    .sec-heading {
+      font-family: 'Cinzel', serif; font-variant: small-caps;
+      font-size: 15px; letter-spacing: .5px; font-weight: 600;
+      color: var(--accent); margin-bottom: 14px;
     }
 
-    /* ── NAME ── */
-    .card-name {
-      font-family: 'Cinzel', serif; font-size: 21px; font-weight: 600;
-      color: var(--text); text-align: center;
-      margin: 15px 0 4px; letter-spacing: 1.8px;
+    /* ── BIO FIELD LIST ── */
+    .bio-list { display: flex; flex-direction: column; gap: 8px; }
+    .bio-item { display: flex; justify-content: space-between; gap: 12px; }
+    .bio-item dt {
+      font-family: 'Raleway', sans-serif; font-size: 12px;
+      color: var(--ink-faint);
     }
-    .card-sub {
-      font-family: 'Cormorant Garamond', serif; font-style: italic;
-      font-size: 13.5px; color: var(--acc-light);
-      text-align: center; letter-spacing: .7px;
-    }
-
-    /* ── DIVIDER ── */
-    .rule {
-      margin: 16px 28px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--acc-border), transparent);
-      transition: background .5s;
-    }
-
-    /* ── BIO PILLS ── */
-    .bio-row {
-      display: flex; gap: 8px; padding: 0 20px;
-      justify-content: center; flex-wrap: wrap;
-    }
-    .bio-pill {
-      background: var(--acc-pale); border: 1px solid var(--acc-border);
-      border-radius: 30px; padding: 6px 15px;
-      display: flex; flex-direction: column; align-items: center;
-      min-width: 86px; transition: background .5s, border-color .5s;
-    }
-    .pill-lbl { font-size: 7px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dimmer); margin-bottom: 3px; }
-    .pill-val { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: var(--text); }
-
-    /* ── SEC LABEL ── */
-    .sec-lbl {
-      font-size: 7.5px; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--text-dimmer); text-align: center; margin-bottom: 11px;
+    .bio-item dd {
+      font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600;
+      color: var(--ink); text-align: right;
     }
 
     /* ── SOCIALS ── */
-    .socials-wrap { padding: 0 24px; }
-    .socials { display: flex; gap: 10px; justify-content: center; }
+    .socials { display: flex; gap: 10px; flex-wrap: wrap; }
     .soc {
-      width: 44px; height: 44px; border-radius: 50%;
+      width: 38px; height: 38px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       text-decoration: none;
-      border: 1px solid var(--acc-border);
-      background: var(--acc-pale); color: var(--acc-light); font-size: 15px;
-      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+      border: 1px solid var(--ink-faint);
+      color: var(--ink-soft); font-size: 14px;
+      transition: border-color .25s, color .25s;
     }
-    .soc:hover { transform: translateY(-4px) scale(1.12); }
-    .soc.fb:hover  { border-color:#1877f2; color:#1877f2; box-shadow: 0 8px 20px rgba(24,119,242,.25); }
-    .soc.tw:hover  { border-color:#e2e8f0; color:#e2e8f0; box-shadow: 0 8px 20px rgba(226,232,240,.15); }
-    .soc.ig:hover  { border-color:#e1306c; color:#e1306c; box-shadow: 0 8px 20px rgba(225,48,108,.25); }
-    .soc.wa:hover  { border-color:#25d366; color:#25d366; box-shadow: 0 8px 20px rgba(37,211,102,.25); }
-    .soc.tg:hover  { border-color:#0088cc; color:#0088cc; box-shadow: 0 8px 20px rgba(0,136,204,.25); }
+    .soc:hover { border-color: var(--accent); color: var(--accent); }
 
     /* ── PROJECTS ── */
-    .projects-wrap { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
+    .projects { list-style: none; display: flex; flex-direction: column; }
     .proj {
-      display: flex; align-items: center; gap: 12px;
+      display: block;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
       text-decoration: none;
-      border: 1px solid var(--acc-border); border-radius: 14px;
-      padding: 11px 14px; background: var(--acc-pale);
-      transition: all .3s ease; color: var(--text);
+      color: var(--ink);
     }
-    .proj:hover { border-color: var(--acc); background: rgba(201,168,76,.16); transform: translateX(5px); }
-    .proj-icon {
-      width: 34px; height: 34px; border-radius: 10px;
-      border: 1px solid var(--acc-border); background: rgba(0,0,0,.25);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--acc); font-size: 14px; flex-shrink: 0;
+    .proj:last-child { border-bottom: none; padding-bottom: 0; }
+    .proj-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600;
+      color: var(--ink);
     }
-    .proj-info { flex: 1; }
-    .proj-title { font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 1px; color: var(--acc-light); }
-    .proj-desc  { font-size: 9.5px; color: var(--text-dimmer); margin-top: 2px; }
-    .proj-arr   { color: var(--text-dimmer); font-size: 11px; transition: all .3s; }
-    .proj:hover .proj-arr { color: var(--acc); transform: translateX(4px); }
-
-    /* ── THEME SWITCHER ── */
-    .themes-wrap { padding: 0 24px; }
-    .themes { display: flex; gap: 10px; justify-content: center; align-items: center; }
-    .t-dot {
-      width: 22px; height: 22px; border-radius: 50%;
-      cursor: pointer; border: 2.5px solid transparent;
-      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+    .proj-desc {
+      display: block;
+      font-size: 11.5px; color: var(--ink-faint);
+      margin-top: 2px;
+      word-break: break-all;
     }
-    .t-dot:hover { transform: scale(1.25); }
-    .t-dot.on { border-color: rgba(255,255,255,.75); transform: scale(1.2); box-shadow: 0 0 14px currentColor; }
-    .t-dot[data-t="gold"]     { background: linear-gradient(135deg,#c9a84c,#f0d888); }
-    .t-dot[data-t="zamalek"]  { background: linear-gradient(135deg,#1a4fa0,#5baee8); }
-    .t-dot[data-t="crimson"]  { background: linear-gradient(135deg,#8b1a1a,#d44); }
-    .t-dot[data-t="emerald"]  { background: linear-gradient(135deg,#145a32,#2ecc71); }
-    .t-dot[data-t="amethyst"] { background: linear-gradient(135deg,#4a1a6b,#a855f7); }
-    .t-dot[data-t="midnight"] { background: linear-gradient(135deg,#1e293b,#64748b); }
 
     /* ── FOOTER ── */
-    .card-footer {
-      text-align: center; font-size: 8.5px;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--text-dimmer);
+    .doc-foot {
+      text-align: center; font-size: 11px;
+      color: var(--ink-faint); letter-spacing: .3px;
     }
-    .card-footer span { color: var(--acc); }
+    .doc-foot span { color: var(--accent); }
 
     /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(14px);
-      background: rgba(0,0,0,.7); border: 1px solid var(--acc-border);
-      backdrop-filter: blur(20px); color: var(--acc-light);
-      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-      padding: 10px 22px; border-radius: 30px;
+      background: var(--ink); color: var(--paper);
+      font-size: 12px; letter-spacing: .5px;
+      padding: 9px 20px; border-radius: 4px;
       opacity: 0; transition: all .4s; z-index: 200; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    @media (max-width: 400px) { .card { width: calc(100vw - 32px); } }
+    @media (max-width: 420px) {
+      body { padding: 28px 12px; }
+      .page { padding: 30px 24px 24px; }
+    }
   </style>
 </head>
 <body>
 
-<canvas id="bgCanvas"></canvas>
-
-<div class="card" id="card">
+<div class="page" id="page">
 
   <!-- HEADER -->
-  <div class="card-header">
-    <canvas id="hdrCanvas"></canvas>
-    <div class="header-overlay" id="hdrOverlay"></div>
-    <div class="header-label">Est. 1911 &nbsp;·&nbsp; Zamalek SC</div>
-    <button class="share-btn" onclick="shareCard()"><i class="fas fa-share-nodes"></i></button>
-  </div>
-
-  <!-- AVATAR -->
-  <div class="avatar-area">
-    <div class="avatar-ring" id="ring">
-      <div class="avatar-inner">
-        <div class="monogram" id="mono">M4S</div>
-      </div>
+  <div class="doc-head">
+    <div class="avatar"><span class="monogram">M4S</span></div>
+    <div class="head-text">
+      <h1 class="name">Mahmoud El Sheikh</h1>
+      <p class="role">Software Engineer</p>
     </div>
-    <div class="status" title="Online"></div>
+    <button class="share-btn" onclick="shareCard()" title="Share"><i class="fas fa-share-nodes"></i></button>
   </div>
 
-  <!-- NAME -->
-  <div class="card-name">Mahmoud El Sheikh</div>
-  <div class="card-sub">Zamalek &nbsp;·&nbsp;  1911</div>
-
-  <div class="rule"></div>
+  <hr class="rule">
 
   <!-- BIO -->
-  <div class="bio-row">
-    <div class="bio-pill"><span class="pill-lbl">Faculty</span><span class="pill-val">Science</span></div>
-    <div class="bio-pill"><span class="pill-lbl">OS</span><span class="pill-val">Arch BTW</span></div>
-    <div class="bio-pill"><span class="pill-lbl">Major</span><span class="pill-val">Mathematics and Statistics</span></div>
-  </div>
+  <dl class="bio-list">
+    <div class="bio-item"><dt>Faculty</dt><dd>Science</dd></div>
+    <div class="bio-item"><dt>Major</dt><dd>Mathematics and Statistics</dd></div>
+    <div class="bio-item"><dt>OS</dt><dd>Arch BTW</dd></div>
+  </dl>
 
-  <div class="rule"></div>
+  <hr class="rule">
 
   <!-- SOCIALS -->
-  <div class="socials-wrap">
-    <div class="sec-lbl">Connect</div>
+  <div>
+    <h2 class="sec-heading">Connect</h2>
     <div class="socials">
-      <a class="soc fb" href="https://www.facebook.com/profile.php?id=100063828772165" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a class="soc tw" href="https://x.com/Mahmoud13965642?t=N08ovBaf-OpU5B1-ifXbpg&s=09" target="_blank" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>
-      <a class="soc ig" href="https://instagram.com/mhmoud_el_sheikh?igshid=dHg4Z3BiOTB3eWxj" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-      <a class="soc wa" href="https://wa.me/+201000808325" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-      <a class="soc tg" href="https://t.me/mahmoud_elsheikh_Zsc" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+      <a class="soc" href="https://www.facebook.com/profile.php?id=100063828772165" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a class="soc" href="https://x.com/Mahmoud13965642?t=N08ovBaf-OpU5B1-ifXbpg&s=09" target="_blank" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a class="soc" href="https://instagram.com/mhmoud_el_sheikh?igshid=dHg4Z3BiOTB3eWxj" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+      <a class="soc" href="https://wa.me/+201000808325" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      <a class="soc" href="https://t.me/mahmoud_elsheikh_Zsc" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
     </div>
   </div>
 
-  <div class="rule"></div>
+  <hr class="rule">
 
   <!-- PROJECTS -->
-  <div class="projects-wrap">
-    <div class="sec-lbl">Projects</div>
-    <a class="proj" href="https://mahmoudelsheikh7.github.io/m4s-security-os/" target="_blank">
-      <div class="proj-icon"><i class="fas fa-star"></i></div>
-      <div class="proj-info">
-        <div class="proj-title">m4s-security-os</div>
-        <div class="proj-desc">https://mahmoudelsheikh7.github.io/m4s-security-os//</div>
-      </div>
-      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
-    </a>
-    <a class="proj" href="https://mahmoudelsheikh7.github.io/web2/" target="_blank">
-      <div class="proj-icon"><i class="fas fa-globe"></i></div>
-      <div class="proj-info">
-        <div class="proj-title">For You</div>
-        <div class="proj-desc">mahmoudelsheikh7.github.io/web2</div>
-      </div>
-      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
-    </a>
-    <a class="proj" href="https://mahmoudelsheikh7.github.io/M4S/" target="_blank">
-      <div class="proj-icon"><i class="fas fa-star"></i></div>
-      <div class="proj-info">
-        <div class="proj-title">M4S Project</div>
-        <div class="proj-desc">mahmoudelsheikh7.github.io/M4S</div>
-      </div>
-      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
-    </a>
-    <a class="proj" href="https://mahmoudelsheikh7.github.io/M4S_D/" target="_blank">
-      <div class="proj-icon"><i class="fas fa-star"></i></div>
-      <div class="proj-info">
-        <div class="proj-title">M4S D</div>
-        <div class="proj-desc">https://mahmoudelsheikh7.github.io/M4S_D/</div>
-      </div>
-      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
-    </a>
-    <a class="proj" href="https://mahmoudelsheikh7.github.io/crimes-against-Muslims/" target="_blank">
-      <div class="proj-icon"><i class="fas fa-star"></i></div>
-      <div class="proj-info">
-        <div class="proj-title">crimes-against-Muslims</div>
-        <div class="proj-desc">https://mahmoudelsheikh7.github.io/crimes-against-Muslims/</div>
-      </div>
-      <div class="proj-arr"><i class="fas fa-arrow-right"></i></div>
-    </a>
+  <div>
+    <h2 class="sec-heading">Projects</h2>
+    <ul class="projects">
+      <li><a class="proj" href="https://mahmoudelsheikh7.github.io/m4s-security-os/" target="_blank">
+        <span class="proj-title">m4s-security-os</span>
+        <span class="proj-desc">mahmoudelsheikh7.github.io/m4s-security-os</span>
+      </a></li>
+      <li><a class="proj" href="https://mahmoudelsheikh7.github.io/web2/" target="_blank">
+        <span class="proj-title">For You</span>
+        <span class="proj-desc">mahmoudelsheikh7.github.io/web2</span>
+      </a></li>
+      <li><a class="proj" href="https://mahmoudelsheikh7.github.io/M4S/" target="_blank">
+        <span class="proj-title">M4S Project</span>
+        <span class="proj-desc">mahmoudelsheikh7.github.io/M4S</span>
+      </a></li>
+      <li><a class="proj" href="https://mahmoudelsheikh7.github.io/M4S_D/" target="_blank">
+        <span class="proj-title">M4S D</span>
+        <span class="proj-desc">mahmoudelsheikh7.github.io/M4S_D</span>
+      </a></li>
+      <li><a class="proj" href="https://mahmoudelsheikh7.github.io/crimes-against-Muslims/" target="_blank">
+        <span class="proj-title">crimes-against-Muslims</span>
+        <span class="proj-desc">mahmoudelsheikh7.github.io/crimes-against-Muslims</span>
+      </a></li>
+    </ul>
   </div>
 
-  <div class="rule"></div>
+  <hr class="rule">
 
-  <!-- THEME SWITCHER -->
-  <div class="themes-wrap">
-    <div class="sec-lbl">Theme</div>
-    <div class="themes">
-      <div class="t-dot on" data-t="gold"     title="Gold Luxury"  onclick="setTheme('gold')"></div>
-      <div class="t-dot"    data-t="zamalek"  title="Zamalek Blue" onclick="setTheme('zamalek')"></div>
-      <div class="t-dot"    data-t="crimson"  title="Crimson"      onclick="setTheme('crimson')"></div>
-      <div class="t-dot"    data-t="emerald"  title="Emerald"      onclick="setTheme('emerald')"></div>
-      <div class="t-dot"    data-t="amethyst" title="Amethyst"     onclick="setTheme('amethyst')"></div>
-      <div class="t-dot"    data-t="midnight" title="Midnight"     onclick="setTheme('midnight')"></div>
-    </div>
-  </div>
-
-  <div class="rule"></div>
-
-  <div class="card-footer">Copyright &copy; 2025 <span>Mahmoudelsheikh&reg;</span></div>
+  <div class="doc-foot">Copyright &copy; 2025 <span>Mahmoudelsheikh&reg;</span></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ─── THEME DATA ─── */
-const T = {
-  gold:     { acc:'#c9a84c', aL:'#e8c97e', aP:'rgba(201,168,76,.10)', aB:'rgba(201,168,76,.25)',  bg:'rgba(10,10,18,.82)',  orbs:['#1a1100','#3a2800','#583a00','#0c0c1a','#111130'], ring:'conic-gradient(from 0deg,#c9a84c,#f0d888,#c9a84c,#f0d888,#c9a84c)', rShadow:'rgba(201,168,76,.4)' },
-  zamalek:  { acc:'#4d9de0', aL:'#85bde8', aP:'rgba(77,157,224,.10)', aB:'rgba(77,157,224,.27)',  bg:'rgba(5,12,28,.84)',   orbs:['#001525','#002a50','#004080','#000e1c','#011e3a'], ring:'conic-gradient(from 0deg,#1a4fa0,#5baee8,#1a4fa0,#5baee8,#1a4fa0)', rShadow:'rgba(77,157,224,.4)' },
-  crimson:  { acc:'#e05555', aL:'#f08888', aP:'rgba(224,85,85,.10)',   aB:'rgba(224,85,85,.27)',   bg:'rgba(14,5,5,.84)',    orbs:['#1e0000','#4a0000','#780010','#0e0000','#300005'], ring:'conic-gradient(from 0deg,#8b1a1a,#d44,#8b1a1a,#d44,#8b1a1a)',         rShadow:'rgba(224,85,85,.4)' },
-  emerald:  { acc:'#2ecc71', aL:'#5dda95', aP:'rgba(46,204,113,.10)',  aB:'rgba(46,204,113,.25)',  bg:'rgba(4,14,8,.84)',    orbs:['#001808','#002e10','#005028','#000e04','#001c0a'], ring:'conic-gradient(from 0deg,#145a32,#2ecc71,#145a32,#2ecc71,#145a32)',   rShadow:'rgba(46,204,113,.4)' },
-  amethyst: { acc:'#a855f7', aL:'#c084fc', aP:'rgba(168,85,247,.10)',  aB:'rgba(168,85,247,.27)',  bg:'rgba(10,5,20,.84)',   orbs:['#0d0020','#1e0040','#3c0080','#080015','#180035'], ring:'conic-gradient(from 0deg,#4a1a6b,#a855f7,#4a1a6b,#a855f7,#4a1a6b)',   rShadow:'rgba(168,85,247,.4)' },
-  midnight: { acc:'#94a3b8', aL:'#cbd5e1', aP:'rgba(148,163,184,.09)', aB:'rgba(148,163,184,.20)', bg:'rgba(6,8,14,.86)',    orbs:['#060810','#0c1020','#141826','#030408','#09090e'], ring:'conic-gradient(from 0deg,#1e293b,#64748b,#1e293b,#64748b,#1e293b)',   rShadow:'rgba(148,163,184,.3)' },
-};
-
-let current = 'gold';
-
-function setTheme(name) {
-  const t = T[name]; if (!t) return;
-  current = name;
-  const r = document.documentElement;
-  r.style.setProperty('--acc',        t.acc);
-  r.style.setProperty('--acc-light',  t.aL);
-  r.style.setProperty('--acc-pale',   t.aP);
-  r.style.setProperty('--acc-border', t.aB);
-  r.style.setProperty('--bg-card',    t.bg);
-
-  const ring = document.getElementById('ring');
-  ring.style.background  = t.ring;
-  ring.style.boxShadow   = `0 0 30px ${t.rShadow}, 0 8px 32px rgba(0,0,0,.55)`;
-
-  document.querySelectorAll('.t-dot').forEach(d => d.classList.toggle('on', d.dataset.t === name));
-
-  // update header overlay gradient
-  document.getElementById('hdrOverlay').style.background =
-    `linear-gradient(to bottom, transparent 35%, ${t.bg} 100%)`;
-}
-
-/* ─── FULL-PAGE ANIMATED BG (orbs) ─── */
-const bgC   = document.getElementById('bgCanvas');
-const bgX   = bgC.getContext('2d');
-function resizeBg() { bgC.width = innerWidth; bgC.height = innerHeight; }
-window.addEventListener('resize', resizeBg); resizeBg();
-
-const blobs = Array.from({length: 7}, (_, i) => ({
-  x: Math.random(), y: Math.random(),
-  vx: (Math.random()-.5)*.00115, vy: (Math.random()-.5)*.00115,
-  r: .25 + Math.random()*.2, ci: i,
-}));
-
-function drawBg() {
-  const W = bgC.width, H = bgC.height;
-  bgX.clearRect(0,0,W,H);
-  bgX.fillStyle = '#06060e';
-  bgX.fillRect(0,0,W,H);
-  const palette = T[current].orbs;
-  blobs.forEach(b => {
-    b.x += b.vx; b.y += b.vy;
-    if(b.x<-.2||b.x>1.2) b.vx*=-1;
-    if(b.y<-.2||b.y>1.2) b.vy*=-1;
-    const gx = b.x*W, gy = b.y*H, gr = b.r*Math.min(W,H);
-    const g = bgX.createRadialGradient(gx,gy,0, gx,gy,gr);
-    const col = palette[b.ci % palette.length];
-    g.addColorStop(0,   col+'cc');
-    g.addColorStop(.55, col+'44');
-    g.addColorStop(1,   col+'00');
-    bgX.beginPath(); bgX.arc(gx,gy,gr,0,Math.PI*2);
-    bgX.fillStyle = g; bgX.fill();
-  });
-  requestAnimationFrame(drawBg);
-}
-drawBg();
-
-/* ─── HEADER CANVAS (particles) ─── */
-const hC  = document.getElementById('hdrCanvas');
-const hX  = hC.getContext('2d');
-const hPts = Array.from({length:50}, () => ({
-  x: Math.random(), y: Math.random(),
-  vx:(Math.random()-.5)*.0014, vy:(Math.random()-.5)*.0014,
-  r: Math.random()*.7+.2, o: Math.random()*.45+.18,
-}));
-
-function resizeHdr() { hC.width = hC.offsetWidth; hC.height = hC.offsetHeight; }
-window.addEventListener('resize', ()=> setTimeout(resizeHdr,50)); setTimeout(resizeHdr,50);
-
-function drawHdr() {
-  const W = hC.width, H = hC.height;
-  if(!W||!H){ requestAnimationFrame(drawHdr); return; }
-  hX.clearRect(0,0,W,H);
-  const t = T[current];
-
-  // gradient bg for header
-  const bg = hX.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0, t.orbs[2]+'ff');
-  bg.addColorStop(1, t.orbs[0]+'ff');
-  hX.fillStyle = bg; hX.fillRect(0,0,W,H);
-
-  // grid lines
-  hX.strokeStyle = t.acc+'1a'; hX.lineWidth = .5;
-  for(let x=0;x<W;x+=22){ hX.beginPath(); hX.moveTo(x,0); hX.lineTo(x,H); hX.stroke(); }
-  for(let y=0;y<H;y+=22){ hX.beginPath(); hX.moveTo(0,y); hX.lineTo(W,y); hX.stroke(); }
-
-  // floating dots
-  hPts.forEach(p => {
-    p.x+=p.vx; p.y+=p.vy;
-    if(p.x<0||p.x>1) p.vx*=-1;
-    if(p.y<0||p.y>1) p.vy*=-1;
-    const a = p.o + Math.sin(Date.now()*.0018+p.x*9)*.12;
-    hX.beginPath(); hX.arc(p.x*W, p.y*H, p.r, 0, Math.PI*2);
-    hX.fillStyle = t.acc + Math.round(Math.max(0,a)*255).toString(16).padStart(2,'0');
-    hX.fill();
-  });
-  requestAnimationFrame(drawHdr);
-}
-drawHdr();
-
-/* ─── SHARE ─── */
 function shareCard() {
   const url = window.location.href;
   if (navigator.share) { navigator.share({ title:'Mahmoud El Sheikh', url }); }
-  else { navigator.clipboard.writeText(url).then(()=> toast('Link copied ✓')); }
+  else { navigator.clipboard.writeText(url).then(()=> toast('Link copied')); }
 }
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   setTimeout(()=> el.classList.remove('show'), 2400);
 }
-
-/* ─── 3D TILT ─── */
-const card = document.getElementById('card');
-card.addEventListener('mousemove', e => {
-  const rc = card.getBoundingClientRect();
-  const dx = (e.clientX - rc.left  - rc.width /2) / (rc.width /2);
-  const dy = (e.clientY - rc.top   - rc.height/2) / (rc.height/2);
-  card.style.transform = `perspective(900px) rotateX(${-dy*5}deg) rotateY(${dx*5}deg) scale(1.012)`;
-  card.style.transition = 'transform .08s linear, border-color .5s, box-shadow .5s';
-});
-card.addEventListener('mouseleave', () => {
-  card.style.transition = 'transform .5s ease, border-color .5s, box-shadow .5s';
-  card.style.transform  = 'perspective(900px) rotateX(0) rotateY(0) scale(1)';
-});
 </script>
 </body>
 </html>
