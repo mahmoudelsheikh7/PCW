@@ -16,12 +16,13 @@
     --bg-pattern: radial-gradient(circle at center, transparent 0%, rgba(200, 185, 155, 0.2) 100%);
 }
 [data-theme="dark"] {
-    --bg-color: #050505;
-    --text-color: #f0e6d2;
-    --accent-color: #d4af37;
-    --border-color: #d4af37;
-    --container-bg: rgba(15, 15, 15, 0.9);
-    --bg-pattern: radial-gradient(circle at center, transparent 0%, rgba(212, 175, 55, 0.05) 100%);
+    /* Eye-friendly dark mode colors */
+    --bg-color: #1a1816; 
+    --text-color: #d8cebd; 
+    --accent-color: #bfa15f; 
+    --border-color: #8c7646; 
+    --container-bg: rgba(36, 33, 30, 0.9);
+    --bg-pattern: radial-gradient(circle at center, transparent 0%, rgba(191, 161, 95, 0.04) 100%);
 }
 body {
     background-color: var(--bg-color);
@@ -194,7 +195,7 @@ h2::before, h2::after {
     </div>
 
     <div class="bio-section">
-        <p>Mathematics and Statistics Student at Menofia University.</p>
+        <p>Student at the Faculty of Science, Menofia University (Mathematics and Statistics).</p>
         <p>Specialized in Systems Programming and Cybersecurity.</p>
     </div>
 
@@ -234,13 +235,19 @@ h2::before, h2::after {
             const files = await response.json();
             loadingElement.style.display = 'none';
 
-            const validFiles = files.filter(file => file.type === 'file' && 
+            let validFiles = files.filter(file => file.type === 'file' && 
                                            file.name !== 'index.html' && 
                                            (file.name.endsWith('.html') || file.name.endsWith('.md') || file.name.endsWith('.txt')));
 
             if (validFiles.length === 0) {
                 listElement.innerHTML = '<li class="loading-text">No archives found.</li>';
                 return;
+            }
+
+            // خوارزمية لخلط ترتيب المشاريع عشوائياً
+            for (let i = validFiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [validFiles[i], validFiles[j]] = [validFiles[j], validFiles[i]];
             }
 
             for (const file of validFiles) {
