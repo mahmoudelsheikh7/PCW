@@ -209,7 +209,7 @@ a:hover {
     });
 
     const githubUsername = 'mahmoudelsheikh7';
-    const githubRepo = 'M4S';
+    const githubRepo = 'PCW';
     const folderPath = '';
 
     async function fetchGithubProjects() {
@@ -224,27 +224,40 @@ a:hover {
             const files = await response.json();
             loadingElement.style.display = 'none';
 
-            const htmlFiles = files.filter(file => file.type === 'file' && (file.name.endsWith('.html') || file.name.endsWith('.md') || file.name.endsWith('.txt')));
+            const validFiles = files.filter(file => file.type === 'file' && 
+                                           file.name !== 'index.html' && 
+                                           (file.name.endsWith('.html') || file.name.endsWith('.md') || file.name.endsWith('.txt')));
 
-            if (htmlFiles.length === 0) {
+            if (validFiles.length === 0) {
                 listElement.innerHTML = '<li class="loading-text">No archives found.</li>';
                 return;
             }
 
-            htmlFiles.forEach(file => {
+            for (const file of validFiles) {
                 let cleanName = file.name.replace(/\.[^/.]+$/, "");
                 let finalName = cleanName.replace(/_/g, " ");
 
                 const listItem = document.createElement('li');
                 const linkItem = document.createElement('a');
                 
-                linkItem.href = `https://${githubUsername}.github.io/${githubRepo}/${file.path}`;
                 linkItem.target = "_blank";
                 linkItem.textContent = finalName;
 
+                if (file.name.endsWith('.txt')) {
+                    try {
+                        const txtResponse = await fetch(file.download_url);
+                        const txtContent = await txtResponse.text();
+                        linkItem.href = txtContent.trim(); 
+                    } catch (e) {
+                        linkItem.href = `https://${githubUsername}.github.io/${githubRepo}/${file.path}`;
+                    }
+                } else {
+                    linkItem.href = `https://${githubUsername}.github.io/${githubRepo}/${file.path}`;
+                }
+
                 listItem.appendChild(linkItem);
                 listElement.appendChild(listItem);
-            });
+            }
 
         } catch (error) {
             listElement.innerHTML = `<li class="loading-text">Failed to access archives.</li>`;
