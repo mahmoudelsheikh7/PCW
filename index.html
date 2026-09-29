@@ -176,7 +176,7 @@ a:hover {
 <div class="cv-container">
     <h1>Mahmoud El Sheikh</h1>
     <div class="alias">arcalc</div>
-
+    
     <div class="contact-links">
         <a href="mailto:arcalc@proton.me"><i class="fas fa-envelope"></i></a>
         <a href="https://wa.me/"><i class="fab fa-whatsapp"></i></a>
@@ -220,11 +220,11 @@ a:hover {
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) throw new Error('Error');
-
+            
             const files = await response.json();
             loadingElement.style.display = 'none';
 
-            const htmlFiles = files.filter(file => file.type === 'file' && (file.name.endsWith('.html') || file.name.endsWith('.md')));
+            const htmlFiles = files.filter(file => file.type === 'file' && (file.name.endsWith('.html') || file.name.endsWith('.md') || file.name.endsWith('.txt')));
 
             if (htmlFiles.length === 0) {
                 listElement.innerHTML = '<li class="loading-text">No archives found.</li>';
@@ -237,7 +237,7 @@ a:hover {
 
                 const listItem = document.createElement('li');
                 const linkItem = document.createElement('a');
-
+                
                 linkItem.href = `https://${githubUsername}.github.io/${githubRepo}/${file.path}`;
                 linkItem.target = "_blank";
                 linkItem.textContent = finalName;
